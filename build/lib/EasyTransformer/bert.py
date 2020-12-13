@@ -84,21 +84,21 @@ class BertTokenizer():
         segment_label = [SEGMENTA for _ in range(len(indexed_tokens))]
         while len(segment_label) <  self.max_len:
             segment_label.append(0)  # 0 is id for [PAD]
-        segment_label= torch.LongTensor(segment_label)
+        #segment_label= torch.LongTensor(segment_label)
         pos = [pos + 1 if w != PAD else 0 for pos, w in enumerate(indexed_tokens)]
         while len(pos) <  self.max_len:
             pos.append(0)
-        pos= torch.LongTensor(pos)
+        #pos= torch.LongTensor(pos)
         avai_len = len(indexed_tokens)
         while len(indexed_tokens) <  self.max_len:
             indexed_tokens.append(0)  # 0 is id for [PAD]
         indexed_tokens = indexed_tokens[: self.max_len]
-        indexed_tokens = torch.tensor(indexed_tokens).long().unsqueeze(0)  # (1, L)
+        #indexed_tokens = torch.tensor(indexed_tokens).long().unsqueeze(0)  # (1, L)
 
         # Attention mask
-        att_mask = torch.zeros(indexed_tokens.size()).long()  # (1, L)
-        att_mask[0, :avai_len] = 1
-        return indexed_tokens,att_mask,pos,segment_label
+        # att_mask = torch.zeros(indexed_tokens.size()).long()  # (1, L)
+        # att_mask[0, :avai_len] = 1
+        return indexed_tokens,pos,segment_label
         
 def position(n_position, d_model):
     position_enc = np.array([[pos / np.power(10000, 2 * i / d_model)
@@ -314,17 +314,3 @@ class BERT(nn.Module):
         self.cuda()
 
 
-# lines =[
-#         "I love NJU",
-#         "Good morning"
-# ]
-# Encoder = BERT()
-# tokenizer=BertTokenizer(lines,30000,512)
-# list = ["I love NJU", "Good morning"]
-# indexed_tokens,att_mask,pos,segment_label=tokenizer.encodepro(list[0])
-# # indexed_tokens = torch.tensor(indexed_tokens)
-# # pos = torch.tensor(pos)
-# # segment_label = torch.tensor(segment_label)
-# out1,out2 = Encoder(indexed_tokens,pos,segment_label)
-# print(out1.shape)
-# print(out2.shape)

@@ -318,7 +318,9 @@ class TransformerEncoder(nn.Module):
         return out, sent_encode
 
 class TransformerTokenizer():
-    def __init__(self,lines):
+    def __init__(self, max_wordn,max_length, lines):
+        self.max_wordn = max_wordn
+        self.max_length=max_length
         self.build_dict(lines)
 
     def build_dict(self,sent):
@@ -327,7 +329,7 @@ class TransformerTokenizer():
             if i not in words:
                 words.add(i)
         words = list(words)
-        words = words[:29998]
+        words = words[:self.max_wordn-2]
         self.word2idx = {}
         self.idx2word = {}
         for pos,i in enumerate( words):
@@ -341,16 +343,16 @@ class TransformerTokenizer():
         
     def encode(self, sent):
         sent_idx = []
+        sent = sent.split(" ")
+        sent = sent[: self.max_length]
+        
         for i in sent:
             if i in self.word2idx:
                 sent_idx.append(self.word2idx[i])
             else:
                 sent_idx.append(self.word2idx['[OOV]'])
+        while len(sent_idx) < self.max_length:
+            sent_idx.append(0)
         return sent_idx
 
-# Encoder = TransformerEncoder(30000)
-# list=[[1,2,3,4,0,0],[2,3,4,5,0,0]]
-# src = torch.tensor(list)
-# out1,out2 = Encoder(src)
-# print(out1.shape)
-# print(out2.shape)
+
