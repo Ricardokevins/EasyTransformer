@@ -2,6 +2,7 @@ import EasyTransformer
 from EasyTransformer import bert
 from EasyTransformer import transformer
 import torch
+
 lines =[
         "I love NJU",
         "Good morning"
