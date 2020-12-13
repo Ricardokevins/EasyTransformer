@@ -2,13 +2,11 @@
 
 Simple implement of Transformer Baseline and BERT extracted from other repo
 
-Both Model are unpretrained and random initialize
-
-
+Both Model are unpretrained and random initialize    <br/> 
 
 BERT from https://github.com/ne7ermore/torch-light
 
-Transformer from https://github.com/whr94621/NJUNMT-pytorch
+Transformer from https://github.com/whr94621/NJUNMT-pytorch   <br/> 
 
 
 
@@ -21,7 +19,9 @@ pip install EasyTransformer
 # new version is 0.0.4
 ```
 
-Here is a simple demo
+
+
+<br/> Here is a simple demo（Also available in demo.py）
 
 ```Python
 import EasyTransformer
@@ -70,6 +70,8 @@ print(out2.shape)
 ```
 
 
+
+<br/> Here are some parameter you can choose to get your own Model as you like
 
 **TransformerTokenizer**
 
