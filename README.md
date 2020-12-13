@@ -2,11 +2,15 @@
 
 Simple implement of Transformer Baseline and BERT **extracted from other repo**
 
-Both Model are unpretrained and random initialize    <br/> 
+Both Model are unpretrained and random initialize   
+
+ <br/> 
 
 BERT from https://github.com/ne7ermore/torch-light
 
-Transformer from https://github.com/whr94621/NJUNMT-pytorch   <br/> 
+Transformer from https://github.com/whr94621/NJUNMT-pytorch    
+
+<br/>
 
 
 
