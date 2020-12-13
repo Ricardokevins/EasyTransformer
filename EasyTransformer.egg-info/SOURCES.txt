@@ -1,0 +1,8 @@
+setup.py
+EasyTransformer/bert.py
+EasyTransformer/transformer.py
+EasyTransformer.egg-info/PKG-INFO
+EasyTransformer.egg-info/SOURCES.txt
+EasyTransformer.egg-info/dependency_links.txt
+EasyTransformer.egg-info/requires.txt
+EasyTransformer.egg-info/top_level.txt
