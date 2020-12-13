@@ -1,8 +1,8 @@
 Metadata-Version: 1.0
 Name: EasyTransformer
-Version: 0.0.4
+Version: 1.0.0
 Summary: Simple implement of BERT and Transformer extracted from other repo
-Home-page: https://github.com/Ricardokevins
+Home-page: https://github.com/Ricardokevins/EasyTransformer
 Author: kevinpro
 Author-email: 3121416933@qq.com
 License: UNKNOWN
