@@ -1,11 +1,5 @@
 # EasyTransformer
 
-对BERT和Transformer的简单实现
-
-使用 pip install EasyTransformer 快速部署和训练，得到baseline
-
- <br/>
-
 Simple implement of Transformer Baseline and BERT **extracted from other repo**
 
 Both Model are unpretrained and random initialize   
