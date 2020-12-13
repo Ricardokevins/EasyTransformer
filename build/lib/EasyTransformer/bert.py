@@ -41,11 +41,13 @@ class BertTokenizer():
         self.build_dict(lines)
         
         
-    def build_dict(self,sent):
+    def build_dict(self,sents):
         words = set([])
-        for i in sent:
-            if i not in words:
-                words.add(i)
+        for sent in sents:
+            sent=sent.split(" ")
+            for i in sent:
+                if i not in words:
+                    words.add(i)
         words = list(words)
         words = words[:self.max_wordn-4]
         self.word2idx = {}

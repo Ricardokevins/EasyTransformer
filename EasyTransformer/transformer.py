@@ -302,12 +302,9 @@ class TransformerEncoder(nn.Module):
     def forward(self, src_seq):
         # Word embedding look up
         batch_size, src_len = src_seq.size()
-
         emb = self.embeddings(src_seq)
-
         enc_mask = src_seq.detach().eq(PAD)
         enc_slf_attn_mask = enc_mask.unsqueeze(1).expand(batch_size, src_len, src_len)
-
         out = emb
 
         for i in range(self.num_layers):
@@ -323,11 +320,13 @@ class TransformerTokenizer():
         self.max_length=max_length
         self.build_dict(lines)
 
-    def build_dict(self,sent):
+    def build_dict(self,sents):
         words = set([])
-        for i in sent:
-            if i not in words:
-                words.add(i)
+        for sent in sents:
+            sent=sent.split(" ")
+            for i in sent:
+                if i not in words:
+                    words.add(i)
         words = list(words)
         words = words[:self.max_wordn-2]
         self.word2idx = {}

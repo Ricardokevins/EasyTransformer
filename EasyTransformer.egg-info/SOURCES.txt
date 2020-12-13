@@ -2,6 +2,7 @@ README.md
 setup.py
 EasyTransformer/bert.py
 EasyTransformer/demo.py
+EasyTransformer/test.py
 EasyTransformer/transformer.py
 EasyTransformer.egg-info/PKG-INFO
 EasyTransformer.egg-info/SOURCES.txt
