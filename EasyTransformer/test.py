@@ -1,15 +1,18 @@
-import pandas as pd
+
 from sklearn.model_selection import train_test_split
-df = pd.read_csv('train.tsv', delimiter='\t', header=None)
+import pandas
+
+df = pandas.read_csv('train.tsv', delimiter='\t', header=None)
 #print(df.head())
 #tokenized = df[0].apply((lambda x: tokenizer.encode(x, add_special_tokens=True)))
 sent = []
 for i in df[0]:
     sent.append(i)
 print(len(sent))
-import transformer
-import bert
-tokenizer = transformer.TransformerTokenizer(20000, 32, sent)
+from transformer import Transformer
+
+transformer = Transformer(sent, 20000,128,pretrain_path='glove.6B.50d.word2vec.txt')
+
 #tokenizer=bert.BertTokenizer(sent,20000,128)
 # for i in range(10):
 #     print(tokenizer.idx2word[i])
@@ -21,7 +24,7 @@ text = []
 # segment = []
 for i in sent:
     #indexed_tokens, pos, segment_label = tokenizer.encodepro(i)
-    indexed_tokens = tokenizer.encode(i)
+    indexed_tokens = transformer.TransformerTokenizer.encode(i)
     text.append(indexed_tokens)
 
     # position.append(pos)
@@ -38,7 +41,7 @@ text = torch.tensor(text)
 labels = torch.tensor(labels)
 
 import torch.utils.data
-batch_size=128
+batch_size=32
 dataset = torch.utils.data.TensorDataset(text, labels)
 train_iter = torch.utils.data.DataLoader(dataset, batch_size, shuffle=True)
 
@@ -46,14 +49,14 @@ train_iter = torch.utils.data.DataLoader(dataset, batch_size, shuffle=True)
 import torch.nn as nn
 import math
 import torch.nn.functional as F
-import transformer
+
 criterion = nn.CrossEntropyLoss()
 import torch.optim as optim
 
 class Model(nn.Module):
     def __init__(self):
         super(Model,self).__init__()
-        self.Encoder = transformer.TransformerEncoder(30000)
+        self.Encoder = transformer.TransformerModel
         #self.Encoder = bert.BERT(20000,max_len=128)
         self.linear=nn.Linear(512,2)
 
