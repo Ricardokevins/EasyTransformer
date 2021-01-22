@@ -11,7 +11,7 @@ for i in df[0]:
 print(len(sent))
 from transformer import Transformer
 
-transformer = Transformer(sent, 20000,128,pretrain_path='glove.6B.50d.word2vec.txt')
+transformer = Transformer(sent, 20000,128)
 
 #tokenizer=bert.BertTokenizer(sent,20000,128)
 # for i in range(10):

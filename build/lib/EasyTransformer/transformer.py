@@ -37,7 +37,6 @@ class Embeddings(nn.Module):
                  num_embeddings,
                  embedding_dim,
                  dropout=0.0,
-                 pretrain_path=None,
                  add_position_embedding=True,
                  padding_idx=PAD):
 
@@ -51,14 +50,12 @@ class Embeddings(nn.Module):
 
         self.padding_idx = padding_idx
         
-        if pretrain_path == None:
+
            
-            self.embeddings = nn.Embedding(num_embeddings=num_embeddings,
-                                    embedding_dim=embedding_dim,
-                                    padding_idx=self.padding_idx)
-        else:
-            print("===== Using Pretrain W2V  =====")
-            self.embeddings = nn.Embedding.from_pretrained(pretrain_path)
+        self.embeddings = nn.Embedding(num_embeddings=num_embeddings,
+                                embedding_dim=embedding_dim,
+                                padding_idx=self.padding_idx)
+    
         self.add_position_embedding = add_position_embedding
 
         self.scale = embedding_dim ** 0.5
@@ -286,14 +283,13 @@ class TransformerEncoder(nn.Module):
 
     def __init__(
             self, n_src_vocab, n_layers=6, n_head=8,
-            d_word_vec=512, d_model=512, d_inner_hid=1024, dropout=0.1, dim_per_head=None,pretrain_path=None):
+            d_word_vec=512, d_model=512, d_inner_hid=1024, dropout=0.1, dim_per_head=None):
         super().__init__()
 
         self.num_layers = n_layers
         self.embeddings = Embeddings(num_embeddings=n_src_vocab,
                                      embedding_dim=d_word_vec,
                                      dropout=dropout,
-                                     pretrain_path=pretrain_path,
                                      add_position_embedding=True                                    
                                      )
         self.block_stack = nn.ModuleList(
@@ -501,24 +497,28 @@ class BasicTokenizer(object):
 
 
 class Transformer():
-    def __init__(self,corpus, n_src_vocab=30000,max_length=512, n_layers=6, n_head=8, d_word_vec=512, d_model=512, d_inner_hid=1024, dropout=0.1, dim_per_head=None,pretrain_path=None):
+    def __init__(self , n_src_vocab=30000,max_length=512, n_layers=6, n_head=8, d_word_vec=512, d_model=512, d_inner_hid=1024, dropout=0.1, dim_per_head=None):
         super().__init__()
-        divide = BasicTokenizer()
-        self.TransformerTokenizer = Tokenizer(n_src_vocab, max_length, divide, corpus)
-        weight=None
-        if pretrain_path != None:
-            import gensim
-            word2vec_model = gensim.models.KeyedVectors.load_word2vec_format(pretrain_path, binary=False, encoding='utf-8')
-            projector = torch.nn.Linear(50, 512)
-            weight = torch.zeros(n_src_vocab,512)
-            for i in range(len(word2vec_model.index2word)):#预训练中没有word2ix，所以只能用索引来遍历
-                if word2vec_model.index2word[i] in self.TransformerTokenizer.idx2word:
-                    index = self.TransformerTokenizer.word_to_idx[word2vec_model.index2word[i]]  #得到预训练中的词汇的新索引
-                    if index == 0 or index == 1:
-                        continue
-                    weight[index, :] = projector(torch.from_numpy(word2vec_model.get_vector(self.TransformerTokenizer.idx_to_word[self.TransformerTokenizer.word_to_idx[word2vec_model.index2word[i]]])))    
-        self.TransformerModel = TransformerEncoder(n_src_vocab, n_layers, n_head, d_word_vec, d_model, d_inner_hid, dropout, dim_per_head=dim_per_head,pretrain_path=weight)
+        self.n_src_vocab = n_src_vocab
+        self.max_length = max_length
+        self.n_layers = n_layers
+        self.n_head = n_head
+        self.d_word_vec = d_word_vec
+        self.d_model = d_model
+        self.d_inner_hid = d_inner_hid
+        self.dropout = dropout
+        self.dim_per_head=dim_per_head
         print("==== Transformer Init successfully ====")
+
+    def get_tokenzier(self, corpus):
+        divide = BasicTokenizer()
+        self.TransformerTokenizer = Tokenizer(self.n_src_vocab, self.max_length, divide, corpus)
+        return self.TransformerTokenizer
+    
+    def get_model(self):
+        self.TransformerModel = TransformerEncoder(n_src_vocab, n_layers, n_head, d_word_vec, d_model, d_inner_hid, dropout, dim_per_head=dim_per_head)
+        return self.TransformerModel
+
 class Tokenizer():
     def __init__(self, max_wordn,max_length,divide,lines):
         self.max_wordn = max_wordn
@@ -526,7 +526,7 @@ class Tokenizer():
         self.divide=divide
         self.build_dict(lines)
 
-    def build_dict(self,sents):
+    def build_dict(self, sents):
         words = set([])
         for sent in sents:
             sent=self.divide.tokenize(sent)
@@ -534,6 +534,7 @@ class Tokenizer():
                 if i not in words:
                     words.add(i)
         words = list(words)
+        print("Original Word Num: ",len(words))
         words = words[:self.max_wordn-2]
         self.word2idx = {}
         self.idx2word = {}
