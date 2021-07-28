@@ -518,7 +518,7 @@ class Transformer():
         return self.TransformerTokenizer
     
     def get_model(self):
-        self.TransformerModel = TransformerEncoder(n_src_vocab, n_layers, n_head, d_word_vec, d_model, d_inner_hid, dropout, dim_per_head=dim_per_head)
+        self.TransformerModel = TransformerEncoder(self.n_src_vocab, self.n_layers, self.n_head, self.d_word_vec, self.d_model, self.d_inner_hid, self.dropout, dim_per_head=self.dim_per_head)
         return self.TransformerModel
 
 class Tokenizer():
@@ -555,7 +555,7 @@ class Tokenizer():
             count_pairs = counter.most_common(self.max_wordn-4) 
             words, _ = list(zip(*count_pairs))
 
-            words = ['<PAD>','[OOV]','[<s>]','[/<s>]'] +  list(words)
+            words = ['[PAD]','[OOV]','[<s>]','[/<s>]','[MASK]'] +  list(words)
 
             for pos,i in enumerate(words):
                 self.word2idx[i] = pos
