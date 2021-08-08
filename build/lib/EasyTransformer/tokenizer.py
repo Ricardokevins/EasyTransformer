@@ -81,7 +81,9 @@ class BasicTokenizer(object):
         # and generally don't have any Chinese data in them (there are Chinese
         # characters in the vocabulary because Wikipedia does have some Chinese
         # words in the English Wikipedia.).
-        text = self._tokenize_chinese_chars(text)
+        
+        # TODO:disabled!!!!!
+        #text = self._tokenize_chinese_chars(text)
         orig_tokens = whitespace_tokenize(text)
         split_tokens = []
         for i,token in enumerate(orig_tokens):
@@ -175,5 +177,200 @@ class BasicTokenizer(object):
                 output.append(char)
         return "".join(output)
 
+Special_Tokens = ['[PAD]','[OOV]','[<s>]','[/<s>]','[MASK]']
+class Tokenizer():
+    def __init__(self, max_wordn,max_length,lines):
+        self.max_wordn = max_wordn
+        self.max_length = max_length
+        self.divide = BasicTokenizer()
+        self.word2idx = {}
+        self.idx2word = {}
+        self.build_dict(lines)
+        
+    def build_dict(self, sents):
+        import os
+        from collections import Counter
+        if os.path.exists('dict.txt'):
+            print("------------------ Using exsit dict ------------------")
+            f = open('dict.txt', 'r',encoding='utf-8')
+            lines = f.readlines()
+            index =0 
+            for i in lines:
+                word = i.replace('\n', '').split('  ')[0]
+                self.word2idx[word] = index
+                self.idx2word[index] = word
+                index+=1
+            print("Dict len: ", len(self.word2idx))
+        else:        
+            all_vocab = []
+            words = set([])
+            print("------------------ Building New Dict ------------------")
+            from tqdm import tqdm
+            for sent in tqdm(sents):
+                sent=self.divide.tokenize(sent)
+                all_vocab.extend(sent)
+            counter = Counter(all_vocab) 
+            count_pairs = counter.most_common(self.max_wordn-5) 
+            words, _ = list(zip(*count_pairs))
+            _ = [1,1,1,1,1]+list(_)
+            
+            words = Special_Tokens +  list(words)
+
+            for pos,i in enumerate(words):
+                self.word2idx[i] = pos
+                self.idx2word[pos] = i
+            
+            print("Dict len: ", len(self.word2idx))
+            f = open('dict.txt','w',encoding='utf-8')
+            for i in range(len(self.word2idx)):
+                f.write(self.idx2word[i]+"\t" +  str(_[i]) + '\n')
+            f.close()
+    
+    def cut(self, sent):
+        return self.divide.tokenize(sent)
+        
+    def encode(self, sent):
+        sent_idx = []
+        sent=self.divide.tokenize(sent)
+        sent = sent[: self.max_length]
+        
+        for i in sent:
+            if i in self.word2idx:
+                sent_idx.append(self.word2idx[i])
+            else:
+                sent_idx.append(self.word2idx['[OOV]'])
+        while len(sent_idx) < self.max_length:
+            sent_idx.append(0)
+        return sent_idx
 
 
+#Code Borrowed and finetued from https://wmathor.com/index.php/archives/1517/
+import re, collections
+class BPE_Tokenizer():
+    def __init__(self, max_wordn,max_length,lines):
+        self.max_wordn = max_wordn
+        self.max_length = max_length
+        self.divide = BasicTokenizer()
+        import os
+        if os.path.exists('bpe.txt'):
+            self.sorted_tokens = []
+            print("------------------ Using exsit dict ------------------")
+            f = open('bpe.txt', 'r',encoding='utf-8')
+            lines = f.readlines()
+            index =0 
+            for i in lines:
+                word = i.replace('\n', '').split('  ')[0]
+                self.sorted_tokens.append(word)
+            print("Dict len: ", len(self.sorted_tokens))
+        else:
+            print("------------------ Building New Dict ------------------")
+            self.vocab = self.get_vocab(lines)
+            self.Learn_bpe()
+        
+    def get_vocab(self,lines):
+        vocab = collections.defaultdict(int)
+        from tqdm import tqdm
+        for sent in tqdm(lines):
+            sent=self.divide.tokenize(sent)
+            for word in sent:
+                vocab[' '.join(list(word)) + ' </w>'] += 1
+        return vocab
+
+    def get_tokens_from_vocab(self,vocab):
+        tokens_frequencies = collections.defaultdict(int)
+        vocab_tokenization = {}
+        for word, freq in vocab.items():
+            word_tokens = word.split()
+            for token in word_tokens:
+                tokens_frequencies[token] += freq
+            vocab_tokenization[''.join(word_tokens)] = word_tokens
+        return tokens_frequencies, vocab_tokenization
+
+    def get_stats(self,vocab):
+        pairs = collections.defaultdict(int)
+        for word, freq in vocab.items():
+            symbols = word.split()
+            for i in range(len(symbols)-1):
+                pairs[symbols[i],symbols[i+1]] += freq
+        return pairs
+    
+    def merge_vocab(self,pair, v_in):
+        v_out = {}
+        bigram = re.escape(' '.join(pair))
+        p = re.compile(r'(?<!\S)' + bigram + r'(?!\S)')
+        for word in v_in:
+            w_out = p.sub(''.join(pair), word)
+            v_out[w_out] = v_in[word]
+        return v_out
+
+    def measure_token_length(self,token):
+        if token[-4:] == '</w>':
+            return len(token[:-4]) + 1
+        else:
+            return len(token)
+
+    def Learn_bpe(self):
+        while True:
+            pairs = self.get_stats(self.vocab)
+            if not pairs:
+                break
+            best = max(pairs, key=pairs.get)
+            self.vocab = self.merge_vocab(best, self.vocab)
+            tokens_frequencies, vocab_tokenization = self.get_tokens_from_vocab(self.vocab)
+            if len(tokens_frequencies.keys()) == self.max_wordn - 5:
+                break
+        
+        sorted_tokens_tuple = sorted(tokens_frequencies.items(), key=lambda item: (self.measure_token_length(item[0]), item[1]), reverse=True)
+        self.sorted_tokens = [token for (token, freq) in sorted_tokens_tuple]
+        self.sorted_tokens = Special_Tokens + self.sorted_tokens
+        f = open('bpe.txt','w',encoding='utf-8')
+        for i in self.sorted_tokens:
+            f.write(i+'\n')
+        f.close()
+        
+
+    def tokenize_word(self,string, sorted_tokens,unknown_token='[OOV]'):
+        if string == '':
+            return []
+        if sorted_tokens == []:
+            return [unknown_token]
+
+        string_tokens = []
+        for i in range(len(sorted_tokens)):
+            token = sorted_tokens[i]
+            token_reg = re.escape(token)
+            #token_reg = re.escape(token.replace('.', '[.]'))
+            #print(string,token_reg)
+            matched_positions = [(m.start(0), m.end(0)) for m in re.finditer(token_reg, string)]
+            #print(matched_positions)
+            if len(matched_positions) == 0:
+                continue
+            substring_end_positions = [matched_position[0] for matched_position in matched_positions]
+            
+            substring_start_position = 0
+            for substring_end_position in substring_end_positions:
+                substring = string[substring_start_position:substring_end_position]
+                string_tokens += self.tokenize_word(string=substring, sorted_tokens=sorted_tokens[i+1:], unknown_token=unknown_token)
+                string_tokens += [token]
+                substring_start_position = substring_end_position + len(token)
+            remaining_substring = string[substring_start_position:]
+            string_tokens += self.tokenize_word(string=remaining_substring, sorted_tokens=sorted_tokens[i+1:], unknown_token=unknown_token)
+            break
+        if len(string_tokens) == 0:
+            return [unknown_token]
+        return string_tokens
+
+    def encode(self, sent):
+        sent_idx = []
+        sent=self.divide.tokenize(sent)
+        tokens = []
+        for i in sent:
+            token = i+"</w>"
+            result = self.tokenize_word(token,self.sorted_tokens)
+            for j in result:
+                tokens.append(self.sorted_tokens.index(j))
+
+        tokens = tokens[: self.max_length]
+        while len(tokens) < self.max_length:
+            tokens.append(0)
+        return tokens
