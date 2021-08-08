@@ -20,7 +20,7 @@ you can have a quick start with
 
 ```
 pip install EasyTransformer
-# new version is 0.0.4
+# new version is 1.2.3
 ```
 
 
@@ -28,49 +28,38 @@ pip install EasyTransformer
 <br/> Here is a simple demo（Also available in demo.py）
 
 ```Python
-import EasyTransformer
-from EasyTransformer import bert
-from EasyTransformer import transformer
-import torch
+class Transformer():
+    def __init__(self , n_src_vocab=30000,max_length=512, n_layers=6, n_head=8, d_word_vec=512, d_model=512, d_inner_hid=1024, dropout=0.1, dim_per_head=None):
+        super().__init__()
+        self.n_src_vocab = n_src_vocab
+        self.max_length = max_length
+        self.n_layers = n_layers
+        self.n_head = n_head
+        self.d_word_vec = d_word_vec
+        self.d_model = d_model
+        self.d_inner_hid = d_inner_hid
+        self.dropout = dropout
+        self.dim_per_head=dim_per_head
+        print("==== Transformer Init successfully ====")
 
-lines =[
-        "I love NJU",
-        "Good morning"
-]
-Encoder = bert.BERT()
-tokenizer=bert.BertTokenizer(lines,30000,512)
-text = []
-position = []
-segment=[]
-indexed_tokens, pos, segment_label = tokenizer.encodepro(lines[0])
-text.append(indexed_tokens)
-position.append(pos)
-segment.append(segment_label)
-indexed_tokens, pos, segment_label = tokenizer.encodepro(lines[1])
-text.append(indexed_tokens)
-position.append(pos)
-segment.append(segment_label)
+    def get_base_tokenzier(self, corpus):
+        from EasyTransformer.tokenizer import Tokenizer
+        self.TransformerTokenizer = Tokenizer(self.n_src_vocab, self.max_length, corpus)
+        return self.TransformerTokenizer
+    
+    def get_BPE_tokenizer(self,corpus):
+        from EasyTransformer.tokenizer import BPE_Tokenizer
+        self.TransformerTokenizer = BPE_Tokenizer(self.n_src_vocab, self.max_length, corpus)
+        return self.TransformerTokenizer
 
-text= torch.tensor(text)
-position = torch.tensor(position)
-segment = torch.tensor(segment)
-out1,out2 = Encoder(text,position,segment)
-print(out1.shape)
-print(out2.shape)
+    def get_Char_tokenizer(self,corpus):
+        from EasyTransformer.tokenizer import Char_Tokenizer
+        self.TransformerTokenizer = Char_Tokenizer(self.n_src_vocab, self.max_length, corpus)
+        return self.TransformerTokenizer
 
-
-Encoder =  transformer.TransformerEncoder(30000)
-tokenizer= transformer.TransformerTokenizer(30000,512,lines)
-text = []
-indexed_tokens= tokenizer.encode(lines[0])
-text.append(indexed_tokens)
-
-indexed_tokens= tokenizer.encode(lines[1])
-text.append(indexed_tokens)
-text= torch.tensor(text)
-out1,out2 = Encoder(text)
-print(out1.shape)
-print(out2.shape)
+    def get_model(self):
+        self.TransformerModel = TransformerEncoder(self.n_src_vocab, self.n_layers, self.n_head, self.d_word_vec, self.d_model, self.d_inner_hid, self.dropout, dim_per_head=self.dim_per_head)
+        return self.TransformerModel
 ```
 
 

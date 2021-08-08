@@ -24,6 +24,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
 import math
 PAD = 0
 '''
@@ -331,13 +332,18 @@ class Transformer():
         print("==== Transformer Init successfully ====")
 
     def get_base_tokenzier(self, corpus):
-        from tokenizer import Tokenizer
+        from EasyTransformer.tokenizer import Tokenizer
         self.TransformerTokenizer = Tokenizer(self.n_src_vocab, self.max_length, corpus)
         return self.TransformerTokenizer
     
     def get_BPE_tokenizer(self,corpus):
-        from tokenizer import BPE_Tokenizer
+        from EasyTransformer.tokenizer import BPE_Tokenizer
         self.TransformerTokenizer = BPE_Tokenizer(self.n_src_vocab, self.max_length, corpus)
+        return self.TransformerTokenizer
+
+    def get_Char_tokenizer(self,corpus):
+        from EasyTransformer.tokenizer import Char_Tokenizer
+        self.TransformerTokenizer = Char_Tokenizer(self.n_src_vocab, self.max_length, corpus)
         return self.TransformerTokenizer
 
     def get_model(self):

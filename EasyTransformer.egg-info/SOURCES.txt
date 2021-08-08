@@ -1,5 +1,6 @@
 README.md
 setup.py
+EasyTransformer/__init__.py
 EasyTransformer/bert.py
 EasyTransformer/draw.py
 EasyTransformer/test.py

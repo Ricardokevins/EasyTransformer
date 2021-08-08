@@ -243,7 +243,6 @@ class Tokenizer():
             sent_idx.append(0)
         return sent_idx
 
-
 #Code Borrowed and finetued from https://wmathor.com/index.php/archives/1517/
 import re, collections
 class BPE_Tokenizer():
@@ -374,3 +373,65 @@ class BPE_Tokenizer():
         while len(tokens) < self.max_length:
             tokens.append(0)
         return tokens
+
+class Char_Tokenizer():
+    def __init__(self, _ , max_length,lines):
+        self.max_length = max_length
+        self.divide = BasicTokenizer()
+        self.word2idx = {}
+        self.idx2word = {}
+        self.build_dict(lines)
+        
+    def build_dict(self, sents):
+        import os
+        from collections import Counter
+        if os.path.exists('char.txt'):
+            print("------------------ Using exsit dict ------------------")
+            f = open('char.txt', 'r',encoding='utf-8')
+            lines = f.readlines()
+            index =0 
+            for i in lines:
+                word = i.replace('\n', '').split('  ')[0]
+                self.word2idx[word] = index
+                self.idx2word[index] = word
+                index+=1
+            print("Dict len: ", len(self.word2idx))
+        else:        
+            all_vocab = []
+            words = set([])
+            print("------------------ Building New Dict ------------------")
+            from tqdm import tqdm
+            for sent in tqdm(sents):
+                sent=self.divide.tokenize(sent)    
+                for j in sent:
+                    all_vocab.extend([i for i in j])
+            words = list(set(all_vocab))
+
+            words = Special_Tokens +  list(words)
+
+            for pos,i in enumerate(words):
+                self.word2idx[i] = pos
+                self.idx2word[pos] = i
+            
+            print("Dict len: ", len(self.word2idx))
+            f = open('char.txt','w',encoding='utf-8')
+            for i in range(len(self.word2idx)):
+                f.write(self.idx2word[i] + '\n')
+            f.close()
+
+    def encode(self, sent):
+        sent_idx = []
+        sent=self.divide.tokenize(sent)
+
+    
+        for j in sent:
+            for i in j:
+                if i in self.word2idx:
+                    sent_idx.append(self.word2idx[i])
+                else:
+                    sent_idx.append(self.word2idx['[OOV]'])
+        
+        sent_idx = sent_idx[: self.max_length]
+        while len(sent_idx) < self.max_length:
+            sent_idx.append(0)
+        return sent_idx

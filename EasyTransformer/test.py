@@ -22,8 +22,8 @@ def get_dataset():
 test_data,_ = get_dataset()
 model = transformer.Transformer(max_length = 16)
 #tokenizer = model.get_base_tokenzier(test_data)
-tokenizer = model.get_BPE_tokenizer(test_data)
-
+#tokenizer = model.get_BPE_tokenizer(test_data)
+tokenizer = model.get_Char_tokenizer(test_data)
 test_data = [
     'I love NLP.',
     'NLP is interesting.',
