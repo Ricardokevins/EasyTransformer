@@ -186,7 +186,10 @@ class Tokenizer():
         self.word2idx = {}
         self.idx2word = {}
         self.build_dict(lines)
-        
+    
+    def get_size(self):
+        return len(self.word2idx)
+
     def build_dict(self, sents):
         import os
         from collections import Counter
@@ -196,7 +199,7 @@ class Tokenizer():
             lines = f.readlines()
             index =0 
             for i in lines:
-                word = i.replace('\n', '').split('  ')[0]
+                word = i.replace('\n', '')
                 self.word2idx[word] = index
                 self.idx2word[index] = word
                 index+=1
@@ -223,7 +226,7 @@ class Tokenizer():
             print("Dict len: ", len(self.word2idx))
             f = open('dict.txt','w',encoding='utf-8')
             for i in range(len(self.word2idx)):
-                f.write(self.idx2word[i]+"\t" +  str(_[i]) + '\n')
+                f.write(self.idx2word[i]+'\n')
             f.close()
     
     def cut(self, sent):
@@ -258,14 +261,17 @@ class BPE_Tokenizer():
             lines = f.readlines()
             index =0 
             for i in lines:
-                word = i.replace('\n', '').split('  ')[0]
+                word = i.replace('\n', '')
                 self.sorted_tokens.append(word)
             print("Dict len: ", len(self.sorted_tokens))
         else:
             print("------------------ Building New Dict ------------------")
             self.vocab = self.get_vocab(lines)
             self.Learn_bpe()
-        
+    
+    def get_size(self):
+        return len(self.sorted_tokens)
+
     def get_vocab(self,lines):
         vocab = collections.defaultdict(int)
         from tqdm import tqdm
@@ -381,7 +387,10 @@ class Char_Tokenizer():
         self.word2idx = {}
         self.idx2word = {}
         self.build_dict(lines)
-        
+    
+    def get_size(self):
+        return len(self.word2idx)
+
     def build_dict(self, sents):
         import os
         from collections import Counter
@@ -391,7 +400,7 @@ class Char_Tokenizer():
             lines = f.readlines()
             index =0 
             for i in lines:
-                word = i.replace('\n', '').split('  ')[0]
+                word = i.replace('\n', '')
                 self.word2idx[word] = index
                 self.idx2word[index] = word
                 index+=1
