@@ -33,8 +33,11 @@ def write_json_file(path,data):
 def write_xlsx_file(path,data):
     pass
 
-def read_fairseq_file(path):
-    pass
+def read_fairseq_file(source_path,target_path):
+    source = read_txt_lines(source_path)
+    target = read_txt_lines(target_path)
+    return source,target
 
-def write_fairseq_file(path,data):
-    pass
+def write_fairseq_file(source_path,target_path,source_data,target_data):
+    write_txt_file(source_path, source_data)
+    write_txt_file(target_path, target_data)
