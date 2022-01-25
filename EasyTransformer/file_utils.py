@@ -14,8 +14,25 @@ def read_json_lines(path):
         data.append(data_dict)
     return data
 
-def read_xlsx_file(path):
-    pass
+def read_xlsx_file(path,sheet_name = 'Sheet1'):
+    import xlrd
+    # required xlrd == 1.2.0 else not support excel
+    path = "D:\\Python_plus\\data_set\\400.xlsx"
+    wb = xlrd.open_workbook(path)
+    #按工作簿定位工作表
+    sh = wb.sheet_by_name(sheet_name)
+    # print(sh.nrows)#有效数据行数
+    # print(sh.ncols)#有效数据列数
+    # print(sh.cell(0,0).value)#输出第一行第一列的值
+    # print(sh.row_values(0))#输出第一行的所有值
+    # #将数据和标题组合成字典
+    # print(dict(zip(sh.row_values(0),sh.row_values(1))))
+    data_dict = []
+    for i in range(1,sh.nrows):
+        data_dict.append(dict(zip(sh.row_values(0),sh.row_values(i))))
+    return data_dict
+
+
 
 def write_txt_file(path,lines):
     f = open(path,'w',encoding = 'utf-8')
