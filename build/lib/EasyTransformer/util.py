@@ -1,6 +1,10 @@
 import time
 import numpy as np
 
+def help():
+    print("def modelsize(model,type_size=4):")
+    print("pbar = ProgressBar(n_total=30,desc='training') pbar(step=step)")
+
 def modelsize(model,type_size=4):
     para = sum([np.prod(list(p.size())) for p in model.parameters()])
     print('Model {} : params: {:4f}M'.format(model._get_name(), para * type_size / 1000 / 1000))
