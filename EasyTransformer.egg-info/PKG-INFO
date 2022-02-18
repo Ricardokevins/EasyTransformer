@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: EasyTransformer
-Version: 1.2.5
+Version: 1.2.6
 Summary: Simple implement of BERT and Transformer extracted from other repo And some useful toolkit in NLP
 Home-page: https://github.com/Ricardokevins/EasyTransformer
 Author: kevinpro

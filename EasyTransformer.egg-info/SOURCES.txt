@@ -4,6 +4,7 @@ EasyTransformer/__init__.py
 EasyTransformer/bert.py
 EasyTransformer/draw.py
 EasyTransformer/file_utils.py
+EasyTransformer/help.py
 EasyTransformer/test.py
 EasyTransformer/tokenizer.py
 EasyTransformer/transformer.py

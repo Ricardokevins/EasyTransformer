@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='EasyTransformer',
-    version='1.2.5',
+    version='1.2.6',
     author='kevinpro',
     author_email='3121416933@qq.com',
     url='https://github.com/Ricardokevins/EasyTransformer',
